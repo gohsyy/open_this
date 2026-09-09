@@ -1,0 +1,266 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+  >
+
+  <meta name="theme-color" content="#000000">
+
+  <title>Video</title>
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      background: #000;
+      font-family: Arial, Helvetica, sans-serif;
+    }
+
+    body {
+      background: #000;
+      color: #fff;
+    }
+
+    /* VIDEO AREA */
+    .video-container {
+      position: relative;
+      width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      background: #000;
+      overflow: hidden;
+    }
+
+    video {
+      position: absolute;
+      top: 0;
+      left: 0;
+
+      width: 100%;
+      height: 100%;
+
+      object-fit: cover;
+      object-position: center;
+
+      background: #000;
+      display: block;
+    }
+
+    /* SAVE SECTION */
+    .save-section {
+      width: 100%;
+      background: #000;
+
+      padding:
+        25px
+        20px
+        calc(25px + env(safe-area-inset-bottom));
+
+      text-align: center;
+    }
+
+    .save-button {
+      width: 100%;
+      max-width: 400px;
+
+      padding: 16px 25px;
+
+      border: none;
+      border-radius: 50px;
+
+      background: #fff;
+      color: #000;
+
+      font-size: 17px;
+      font-weight: 600;
+
+      cursor: pointer;
+
+      -webkit-appearance: none;
+      appearance: none;
+    }
+
+    .save-button:active {
+      opacity: 0.75;
+      transform: scale(0.98);
+    }
+
+    .save-button:disabled {
+      opacity: 0.6;
+      cursor: default;
+    }
+
+    .save-info {
+      margin-top: 12px;
+
+      font-size: 13px;
+      line-height: 1.5;
+
+      color: #aaa;
+    }
+  </style>
+</head>
+
+
+<body>
+
+  <!-- VIDEO -->
+  <div class="video-container">
+
+    <video
+      id="mainVideo"
+      autoplay
+      playsinline
+      controls
+      preload="auto"
+    >
+      <source src="video.mp4" type="video/mp4">
+
+      Your browser does not support this video.
+    </video>
+
+  </div>
+
+
+  <!-- SAVE VIDEO -->
+  <div class="save-section">
+
+    <button
+      id="saveButton"
+      class="save-button"
+      onclick="saveVideo()"
+    >
+      Save Video
+    </button>
+
+    <div class="save-info">
+      iPhone: Tap Save Video, then choose Save Video from the Share menu.
+    </div>
+
+  </div>
+
+
+  <script>
+
+    async function saveVideo() {
+
+      const button = document.getElementById("saveButton");
+
+      try {
+
+        button.disabled = true;
+        button.innerText = "Preparing video...";
+
+
+        /* Download video into memory */
+
+        const response = await fetch("video.mp4");
+
+        if (!response.ok) {
+          throw new Error("Video download failed");
+        }
+
+        const blob = await response.blob();
+
+
+        /* Create video file */
+
+        const file = new File(
+          [blob],
+          "video.mp4",
+          {
+            type: "video/mp4"
+          }
+        );
+
+
+        /*
+          iPhone Safari / supported mobile browsers
+
+          Open native Share Sheet
+        */
+
+        if (
+          navigator.share &&
+          navigator.canShare &&
+          navigator.canShare({
+            files: [file]
+          })
+        ) {
+
+          await navigator.share({
+            files: [file],
+            title: "Video"
+          });
+
+        }
+
+        /*
+          Fallback:
+          Android / Desktop / unsupported browsers
+        */
+
+        else {
+
+          const url = URL.createObjectURL(blob);
+
+          const link = document.createElement("a");
+
+          link.href = url;
+          link.download = "video.mp4";
+
+          document.body.appendChild(link);
+
+          link.click();
+
+          document.body.removeChild(link);
+
+          setTimeout(() => {
+            URL.revokeObjectURL(url);
+          }, 1000);
+
+        }
+
+      }
+
+      catch (error) {
+
+        /*
+          Ignore error when user simply closes
+          the iPhone Share Sheet
+        */
+
+        if (error.name !== "AbortError") {
+
+          alert(
+            "Unable to open Save Video. Please use the browser Share button and choose Save Video."
+          );
+
+        }
+
+      }
+
+      finally {
+
+        button.disabled = false;
+        button.innerText = "Save Video";
+
+      }
+
+    }
+
+  </script>
+
+</body>
+</html>
