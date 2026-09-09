@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
 
@@ -13,6 +14,7 @@
   <title>Video</title>
 
   <style>
+
     * {
       margin: 0;
       padding: 0;
@@ -22,28 +24,34 @@
     html,
     body {
       width: 100%;
-      min-height: 100%;
       background: #000;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: -apple-system, BlinkMacSystemFont, Arial, sans-serif;
     }
 
     body {
-      background: #000;
-      color: #fff;
+      color: white;
     }
 
-    /* VIDEO AREA */
+
+    /* =========================
+       VIDEO
+       ========================= */
+
     .video-container {
       position: relative;
+
       width: 100%;
       height: 100vh;
       height: 100dvh;
+
       background: #000;
+
       overflow: hidden;
     }
 
     video {
       position: absolute;
+
       top: 0;
       left: 0;
 
@@ -53,70 +61,160 @@
       object-fit: cover;
       object-position: center;
 
-      background: #000;
       display: block;
+
+      background: #000;
     }
 
-    /* SAVE SECTION */
+
+    /* =========================
+       SMALL SCROLL HINT
+       ========================= */
+
+    .scroll-hint {
+      position: absolute;
+
+      left: 50%;
+      bottom: 52px;
+
+      transform: translateX(-50%);
+
+      z-index: 10;
+
+      color: rgba(255, 255, 255, 0.55);
+
+      font-size: 11px;
+      font-weight: 400;
+
+      letter-spacing: 0.6px;
+
+      white-space: nowrap;
+
+      pointer-events: none;
+
+      text-shadow:
+        0 1px 4px rgba(0, 0, 0, 0.5);
+    }
+
+
+    /* =========================
+       SAVE AREA
+       ========================= */
+
     .save-section {
+
       width: 100%;
+
+      min-height: 180px;
+
       background: #000;
+
+      display: flex;
+      flex-direction: column;
+
+      justify-content: center;
+      align-items: center;
 
       padding:
-        25px
-        20px
-        calc(25px + env(safe-area-inset-bottom));
 
-      text-align: center;
+        35px
+        20px
+        calc(35px + env(safe-area-inset-bottom));
+
     }
 
+
+    /* =========================
+       SAVE BUTTON
+       ========================= */
+
     .save-button {
+
       width: 100%;
-      max-width: 400px;
+
+      max-width: 380px;
 
       padding: 16px 25px;
 
       border: none;
+
       border-radius: 50px;
 
       background: #fff;
+
       color: #000;
 
-      font-size: 17px;
+      font-size: 16px;
+
       font-weight: 600;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        Arial,
+        sans-serif;
 
       cursor: pointer;
 
       -webkit-appearance: none;
       appearance: none;
+
+      transition:
+        opacity 0.15s ease,
+        transform 0.15s ease;
     }
+
 
     .save-button:active {
+
       opacity: 0.75;
+
       transform: scale(0.98);
+
     }
+
 
     .save-button:disabled {
-      opacity: 0.6;
-      cursor: default;
+
+      opacity: 0.55;
+
     }
+
+
+    /* =========================
+       SMALL SAVE TEXT
+       ========================= */
 
     .save-info {
+
       margin-top: 12px;
 
-      font-size: 13px;
+      color: rgba(255, 255, 255, 0.4);
+
+      font-size: 11px;
+
+      font-weight: 400;
+
+      text-align: center;
+
       line-height: 1.5;
 
-      color: #aaa;
     }
+
   </style>
+
 </head>
 
 
 <body>
 
-  <!-- VIDEO -->
-  <div class="video-container">
+
+  <!-- =========================
+       VIDEO
+       ========================= -->
+
+  <section class="video-container">
+
 
     <video
       id="mainVideo"
@@ -125,142 +223,260 @@
       controls
       preload="auto"
     >
-      <source src="video.mp4" type="video/mp4">
+
+      <source
+        src="video.mp4"
+        type="video/mp4"
+      >
 
       Your browser does not support this video.
+
     </video>
 
-  </div>
 
 
-  <!-- SAVE VIDEO -->
-  <div class="save-section">
+    <!-- SMALL HINT -->
+
+    <div class="scroll-hint">
+
+      ↓ swipe down to save
+
+    </div>
+
+
+  </section>
+
+
+
+  <!-- =========================
+       SAVE VIDEO
+       ========================= -->
+
+  <section class="save-section">
+
 
     <button
       id="saveButton"
       class="save-button"
       onclick="saveVideo()"
     >
+
       Save Video
+
     </button>
 
+
+
     <div class="save-info">
-      iPhone: Tap Save Video, then choose Save Video from the Share menu.
+
+      iPhone · choose Save Video from the share menu
+
     </div>
 
-  </div>
+
+  </section>
+
 
 
   <script>
 
     async function saveVideo() {
 
-      const button = document.getElementById("saveButton");
+
+      const button =
+        document.getElementById("saveButton");
+
 
       try {
 
+
+        /*
+        ==========================
+        LOADING
+        ==========================
+        */
+
         button.disabled = true;
-        button.innerText = "Preparing video...";
+
+        button.innerText =
+          "Preparing video...";
 
 
-        /* Download video into memory */
 
-        const response = await fetch("video.mp4");
+        /*
+        ==========================
+        GET VIDEO
+        ==========================
+        */
+
+        const response =
+          await fetch("video.mp4");
+
 
         if (!response.ok) {
-          throw new Error("Video download failed");
-        }
 
-        const blob = await response.blob();
-
-
-        /* Create video file */
-
-        const file = new File(
-          [blob],
-          "video.mp4",
-          {
-            type: "video/mp4"
-          }
-        );
-
-
-        /*
-          iPhone Safari / supported mobile browsers
-
-          Open native Share Sheet
-        */
-
-        if (
-          navigator.share &&
-          navigator.canShare &&
-          navigator.canShare({
-            files: [file]
-          })
-        ) {
-
-          await navigator.share({
-            files: [file],
-            title: "Video"
-          });
-
-        }
-
-        /*
-          Fallback:
-          Android / Desktop / unsupported browsers
-        */
-
-        else {
-
-          const url = URL.createObjectURL(blob);
-
-          const link = document.createElement("a");
-
-          link.href = url;
-          link.download = "video.mp4";
-
-          document.body.appendChild(link);
-
-          link.click();
-
-          document.body.removeChild(link);
-
-          setTimeout(() => {
-            URL.revokeObjectURL(url);
-          }, 1000);
-
-        }
-
-      }
-
-      catch (error) {
-
-        /*
-          Ignore error when user simply closes
-          the iPhone Share Sheet
-        */
-
-        if (error.name !== "AbortError") {
-
-          alert(
-            "Unable to open Save Video. Please use the browser Share button and choose Save Video."
+          throw new Error(
+            "Unable to load video"
           );
 
         }
 
+
+
+        /*
+        ==========================
+        CONVERT TO BLOB
+        ==========================
+        */
+
+        const blob =
+          await response.blob();
+
+
+
+        /*
+        ==========================
+        CREATE FILE
+        ==========================
+        */
+
+        const file =
+          new File(
+
+            [blob],
+
+            "video.mp4",
+
+            {
+              type: "video/mp4"
+            }
+
+          );
+
+
+
+        /*
+        ==========================
+        iPHONE / SAFARI
+        ==========================
+        */
+
+        if (
+
+          navigator.share &&
+
+          navigator.canShare &&
+
+          navigator.canShare({
+            files: [file]
+          })
+
+        ) {
+
+
+          await navigator.share({
+
+            files: [file],
+
+            title: "Video"
+
+          });
+
+
+        }
+
+
+        /*
+        ==========================
+        FALLBACK DOWNLOAD
+        ==========================
+        */
+
+        else {
+
+
+          const url =
+            URL.createObjectURL(blob);
+
+
+          const link =
+            document.createElement("a");
+
+
+          link.href = url;
+
+          link.download =
+            "video.mp4";
+
+
+          document.body.appendChild(
+            link
+          );
+
+
+          link.click();
+
+
+          document.body.removeChild(
+            link
+          );
+
+
+          setTimeout(() => {
+
+            URL.revokeObjectURL(url);
+
+          }, 1500);
+
+
+        }
+
+
       }
+
+
+      catch (error) {
+
+
+        /*
+        User closed Share Sheet
+        */
+
+        if (
+          error.name !== "AbortError"
+        ) {
+
+
+          alert(
+
+            "Please use the browser Share button and choose Save Video."
+
+          );
+
+
+        }
+
+
+      }
+
 
       finally {
 
+
         button.disabled = false;
-        button.innerText = "Save Video";
+
+        button.innerText =
+          "Save Video";
+
 
       }
+
 
     }
 
   </script>
 
+
 </body>
+
 </html>
